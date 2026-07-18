@@ -62,7 +62,7 @@ Giá giờ chơi theo khu:
 - Premium: 12.680đ/giờ
 - Arena: 13.680đ/giờ
 
-Số điện thoại / Zalo quán: 076 368 8077"""
+Số điện thoại / Zalo quán: 0396 886 409"""
 
 SYSTEM_PROMPT_TEMPLATE = """Bạn là nhân viên trực Messenger của quán net Ares Gaming.
 
