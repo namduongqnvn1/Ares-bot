@@ -63,11 +63,31 @@ DEFAULT_KNOWLEDGE = """Địa chỉ: 168 Lê Hồng Phong, Quy Nhơn
 Số máy: 61 máy
 Giờ mở cửa: 7h sáng - 22h đêm, KHÔNG mở xuyên đêm
 
-Giá giờ chơi theo khu:
-- Standard: 8.680đ/giờ
-- VIP: 10.680đ/giờ
-- Premium: 12.680đ/giờ
-- Arena: 13.680đ/giờ
+Quán có 4 khu, chia 2 tầng:
+- Tầng trệt: khu STANDARD và khu VIP (quầy tiếp tân ở tầng trệt)
+- Tầng 1: khu PREMIUM và khu ARENA
+
+Giá giờ chơi và cấu hình từng khu:
+
+STANDARD - 8.680đ/giờ (tầng trệt)
+- CPU i3 đời 12, VGA GTX 1660 Super, RAM 16GB
+- Màn hình 24 inch 165Hz
+- Chuột Logitech G102 gen 2, bàn phím DareU EK810X, tai nghe DareU 416
+
+VIP - 10.680đ/giờ (tầng trệt)
+- CPU i3 đời 12, VGA RTX 2060 Super, RAM 16GB
+- Màn hình 27 inch 180Hz
+- Chuột Logitech G102 gen 2, bàn phím DareU EK810X, tai nghe DareU 416
+
+PREMIUM - 12.680đ/giờ (tầng 1)
+- CPU i5 đời 12, VGA RTX 3060, RAM 32GB
+- Màn hình 27 inch 240Hz
+- Chuột Logitech G402, bàn phím DareU EK1280X, tai nghe DareU 722X
+
+ARENA - 13.680đ/giờ (tầng 1)
+- CPU i5 đời 13, VGA RTX 3060 Ti, RAM 32GB
+- Màn hình ZOWIE 25 inch 240Hz
+- Chuột ZOWIE S2, bàn phím DareU EK1280X, tai nghe DareU EH925
 
 Số điện thoại / Zalo quán: 0396 886 409"""
 
