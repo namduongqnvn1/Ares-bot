@@ -41,7 +41,7 @@ MAX_HISTORY_MESSAGES = 20
 # Nội dung mặc định - chỉ dùng để tạo file lần đầu, sau đó mày sửa trực tiếp trong file
 # hoặc bằng lệnh "cập nhật 1:" / "cập nhật 2:" qua chat
 DEFAULT_RULES = """1. Trả lời tiếng Việt, giọng gần gũi tự nhiên như nhân viên quán net thật, không máy móc.
-2. Mỗi câu trả lời tối đa 2-3 câu, không lan man, không liệt kê dài dòng trừ khi khách hỏi rõ "có những gì".
+2. Mỗi câu trả lời tối đa 2-3 câu, không lan man, không liệt kê dài dòng trừ khi khách hỏi rõ "có những gì", HOẶC khách hỏi về cấu hình máy / giá / thông số từng khu → khi đó được phép liệt kê đầy đủ, rõ ràng theo từng khu, kèm đúng số liệu trong THÔNG TIN QUÁN (CPU, VGA, RAM, màn hình, chuột, phím, tai nghe).
 3. Khi khách khiếu nại/phàn nàn (máy, mạng, đồ ăn...) hoặc muốn cài thêm game chưa có sẵn → xác nhận đã ghi nhận yêu cầu, nhân viên sẽ xử lý/liên hệ lại.
 4. TUYỆT ĐỐI không bịa số liệu, giá cả, giờ giấc, khuyến mãi không có trong phần THÔNG TIN QUÁN.
 5. Nếu khách nói thông tin cũ khác hiện tại (vd "trước đây quán mở đêm mà") → chỉ xác nhận thông tin HIỆN TẠI nhẹ nhàng, KHÔNG nói "bạn nhớ nhầm" hay "chắc nhầm quán khác".
@@ -52,6 +52,8 @@ DEFAULT_RULES = """1. Trả lời tiếng Việt, giọng gần gũi tự nhiên
 10. Quán KHÔNG hỗ trợ nạp tiền online. Khách cần đến trực tiếp quầy để nạp tiền và nhận đúng ưu đãi đang áp dụng. Không cung cấp số tài khoản, mã QR, ví điện tử hoặc hướng dẫn chuyển khoản.
 11. Khi từ chối một yêu cầu, không trả lời cụt lủn. Cấu trúc câu trả lời: ghi nhận nhu cầu của khách, giải thích lý do ngắn gọn, đưa ra phương án thay thế rõ ràng.
 12. Tin nhắn dạng "[Khách vừa gửi 1 ảnh/sticker/video/file...]" → bot không xem được nội dung, hỏi khách mô tả bằng chữ họ cần gì.
+
+13. Messenger KHÔNG hiển thị định dạng markdown. Viết thuần văn bản: không dùng ** để in đậm, không dùng # hay ` `. Muốn liệt kê thì xuống dòng và dùng dấu gạch đầu dòng "-".
 
 CÂU MẪU THAM KHẢO:
 Khách hỏi còn máy không: Dạ tình trạng máy trống thay đổi liên tục nên quán chưa thể kiểm tra hoặc cam kết chính xác qua tin nhắn bạn nha. Bạn ghé trực tiếp quán trong khung giờ 7:00–22:00, nhân viên sẽ hỗ trợ sắp xếp máy theo tình trạng thực tế nhé.
@@ -240,7 +242,8 @@ def ask_ai(sender_id, user_text):
                 json={
                     "model": "deepseek-chat",
                     "messages": [{"role": "system", "content": system_prompt}] + recent_messages,
-                    "max_tokens": 300,
+                    # 300 khong du cho cau tra loi liet ke cau hinh 4 khu -> bi cat cut giua chung
+                    "max_tokens": 800,
                 },
                 timeout=30,
             )
