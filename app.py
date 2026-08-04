@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import requests
 import os
 import json
+import time
 
 load_dotenv()
 
@@ -23,6 +24,12 @@ ADMIN_IDS = [
 # "cập nhật 2:" -> sửa THÔNG TIN quán (giá, giờ, khuyến mãi...)
 UPDATE_PREFIX_RULES = "cập nhật 1:"
 UPDATE_PREFIX_INFO = "cập nhật 2:"
+
+# Câu trả lời khi AI lỗi - thà nói câu này còn hơn để khách nhắn vào khoảng không
+FALLBACK_REPLY = (
+    "Dạ bên mình đang hơi trục trặc hệ thống chút xíu, bạn nhắn lại giúp mình sau ít phút nha. "
+    "Cần gấp thì bạn gọi Zalo 0396 886 409 nhé!"
+)
 
 # Neo đường dẫn theo vị trí file app.py, không phụ thuộc thư mục mày chạy lệnh python từ đâu
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -173,7 +180,12 @@ def webhook():
                     send_message(sender_id, f"Đã lưu thông tin mới: {new_info}")
                     continue
 
-            reply = ask_ai(sender_id, user_text)
+            try:
+                reply = ask_ai(sender_id, user_text)
+            except Exception as e:
+                # DeepSeek lỗi/quá tải - vẫn phải nói gì đó với khách, không được im lặng
+                print(f"[LOI AI] {type(e).__name__}: {e}", flush=True)
+                reply = FALLBACK_REPLY
             send_message(sender_id, reply)
     return jsonify({"status": "ok"})
 
@@ -189,20 +201,36 @@ def ask_ai(sender_id, user_text):
         rules=load_rules(),
     )
 
-    resp = requests.post(
-        "https://api.deepseek.com/chat/completions",
-        headers={
-            "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "model": "deepseek-chat",
-            "messages": [{"role": "system", "content": system_prompt}] + recent_messages,
-            "max_tokens": 300,
-        },
-        timeout=30,
-    )
-    resp.raise_for_status()
+    # DeepSeek hay trả 429/500/503 lúc quá tải -> thử lại vài lần trước khi bỏ cuộc
+    last_error = None
+    for attempt in range(3):
+        try:
+            resp = requests.post(
+                "https://api.deepseek.com/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": "deepseek-chat",
+                    "messages": [{"role": "system", "content": system_prompt}] + recent_messages,
+                    "max_tokens": 300,
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            break
+        except requests.RequestException as e:
+            last_error = e
+            status = getattr(e.response, "status_code", None)
+            # 4xx (trừ 429) là lỗi của mình, thử lại cũng vô ích
+            if status is not None and 400 <= status < 500 and status != 429:
+                raise
+            if attempt < 2:
+                time.sleep(2 * (attempt + 1))
+    else:
+        raise last_error
+
     reply = resp.json()["choices"][0]["message"]["content"]
 
     conversation.append({"role": "assistant", "content": reply})
