@@ -107,6 +107,26 @@ def save_history(history):
         json.dump(history, f, ensure_ascii=False, indent=2)
 
 
+@app.route("/", methods=["GET"])
+def home():
+    # Meta yêu cầu URL trang web trả 200 khi phát hành app, và Render cần
+    # 1 endpoint để cron ping giữ service không ngủ
+    return """<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><title>Ares Gaming Bot</title></head>
+<body style="font-family:sans-serif;max-width:640px;margin:60px auto;padding:0 20px">
+<h1>Ares Gaming - Trợ lý Messenger</h1>
+<p>Đây là dịch vụ webhook tự động trả lời tin nhắn cho Trang Facebook
+<strong>Ares Gaming</strong> (quán net, 168 Le Hong Phong, Quy Nhon).</p>
+<p>Dịch vụ không có giao diện người dùng. Muốn liên hệ, nhắn tin cho Trang trên Messenger
+hoặc Zalo 0396 886 409.</p>
+</body></html>""", 200
+
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"}), 200
+
+
 @app.route("/webhook", methods=["GET"])
 def verify():
     if request.args.get("hub.verify_token") == VERIFY_TOKEN:
